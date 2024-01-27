@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, DateTime, Integer
-from database import Base
+from base import Base
 
 
 class PlaceDB(Base):

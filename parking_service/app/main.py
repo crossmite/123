@@ -1,13 +1,12 @@
 import os
-
 import uvicorn
 from fastapi import FastAPI, Depends, HTTPException, status
 from typing import Annotated
 from database.carDB import CarDB
-from database.database import engine, SessionLocal
+from database.base import engine, SessionLocal
 from sqlalchemy.orm import Session
 from model.car import Car
-import database.database as database
+import database.base as database
 
 app = FastAPI()
 database.Base.metadata.create_all(bind=engine)
@@ -25,25 +24,23 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 
 @app.get("/health", status_code=status.HTTP_200_OK)
-async def station_alive():
+async def car_alive():
     return {'message': 'service alive'}
 
 
 @app.get("/car")
-async def fetch_trains(db: db_dependency):
+async def get_car(db: db_dependency):
     result = db.query(Car).all()
     return result
 
 
-@app.post("/add_car")
-async def add_trains(car: Car, db: db_dependency):
-    db_car = CarDB(number=car.number,
-                   time=car.time,
-                   price=car.price)
-
-    db.add(db_car)
-    db.commit()
-    db.refresh(db_car)
+@app.post("/create_space")
+async def add_car(db: db_dependency):
+    car = CarDB(number=0,
+                time=0,
+                price=0,)
+    db.add(car)
+    return car.id
 
 
 @app.post("/delete_car")
